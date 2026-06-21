@@ -3,46 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ancestor's Funnel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
+    <title>The Cosmic Clock</title>
+    <!-- Google Fonts: Space Mono for numbers, Inter for text -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #080808;
-            --text-color: #d4cbb8;
-            --faint-color: #4a4a4a;
+            --bg-color: #050608;
+            --text-color: #e2e8f0;
+            --accent-color: #64ffda;
+            --faint-color: #64748b;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-align: center;
             overflow: hidden;
-            /* Subtle film grain effect overlay */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            /* Starry background effect */
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 130px 80px, #ffffff, rgba(0,0,0,0));
+            background-size: 200px 200px;
         }
 
-        #container {
+        /* Container for smooth transitions */
+        #app-container {
+            width: 100%;
             max-width: 800px;
             padding: 2rem;
-            position: relative;
-            z-index: 1;
+            text-align: center;
         }
 
-        /* The Input Screen */
-        #intro {
-            transition: opacity 2s ease-in-out;
+        /* ----- INPUT SCREEN ----- */
+        #intro-screen {
+            transition: opacity 1s ease-out;
         }
 
         h1 {
-            font-size: 2rem;
             font-weight: 300;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             margin-bottom: 2rem;
             color: var(--faint-color);
         }
@@ -50,9 +57,9 @@
         input[type="date"] {
             background: transparent;
             border: none;
-            border-bottom: 1px solid var(--faint-color);
-            color: var(--text-color);
-            font-family: 'Cormorant Garamond', serif;
+            border-bottom: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-family: 'Space Mono', monospace;
             font-size: 1.5rem;
             padding: 0.5rem;
             margin-bottom: 2rem;
@@ -61,10 +68,8 @@
             text-align: center;
         }
 
-        /* Hide default calendar icon for a cleaner look */
         input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            opacity: 0.3;
+            filter: invert(80%) sepia(40%) saturate(300%) hue-rotate(120deg);
             cursor: pointer;
         }
 
@@ -72,148 +77,180 @@
             background: transparent;
             border: 1px solid var(--faint-color);
             color: var(--text-color);
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            padding: 0.8rem 2rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            padding: 1rem 2rem;
             cursor: pointer;
-            transition: all 0.5s ease;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             display: block;
             margin: 0 auto;
         }
 
         button:hover {
-            background: var(--text-color);
-            color: var(--bg-color);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.2);
         }
 
-        /* The Cinematic Text Area */
-        #story {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
+        /* ----- DASHBOARD SCREEN ----- */
+        #dashboard {
             display: none;
-        }
-
-        .story-line {
-            font-size: 2.5rem;
-            line-height: 1.4;
             opacity: 0;
-            position: absolute;
-            width: 100%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            transition: opacity 1.5s ease-in;
+            text-align: left;
         }
 
-        /* The cinematic fade in, linger, and fade out animation */
-        @keyframes breatheInOut {
-            0% { opacity: 0; transform: translate(-50%, -45%); filter: blur(4px); }
-            15% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
-            85% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
-            100% { opacity: 0; transform: translate(-50%, -55%); filter: blur(4px); }
+        .stat-block {
+            margin-bottom: 2.5rem;
+            border-left: 2px solid var(--faint-color);
+            padding-left: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s forwards ease-out;
         }
 
-        .animate-line {
-            animation: breatheInOut 7s forwards;
+        /* Stagger the animations so they load one by one */
+        .stat-block:nth-child(1) { animation-delay: 0.5s; }
+        .stat-block:nth-child(2) { animation-delay: 1.5s; }
+        .stat-block:nth-child(3) { animation-delay: 2.5s; }
+        .stat-block:nth-child(4) { animation-delay: 3.5s; }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--faint-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
         }
 
-        /* For the final line to stay on screen */
-        @keyframes breatheInStay {
-            0% { opacity: 0; transform: translate(-50%, -45%); filter: blur(4px); }
-            100% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            font-weight: 700;
         }
 
-        .animate-final {
-            animation: breatheInStay 4s forwards;
+        .stat-desc {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                border-left-color: var(--accent-color);
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="container">
-        <!-- Input Phase -->
-        <div id="intro">
-            <h1>When did your story begin?</h1>
+    <div id="app-container">
+        <!-- Input Screen -->
+        <div id="intro-screen">
+            <h1>When did you arrive on Earth?</h1>
             <input type="date" id="bdate" required>
-            <button id="start-btn">Remember</button>
+            <button id="start-btn">Calculate Cosmic Data</button>
         </div>
 
-        <!-- Narrative Phase -->
-        <div id="story"></div>
+        <!-- Output Dashboard -->
+        <div id="dashboard">
+            <div class="stat-block">
+                <div class="stat-label">Earth Traversal</div>
+                <div class="stat-value" id="miles-traveled">0</div>
+                <div class="stat-desc">Miles you have traveled through space since birth (Earth moves at 67,000 mph).</div>
+            </div>
+
+            <div class="stat-block">
+                <div class="stat-label">Lunar Orbits</div>
+                <div class="stat-value" id="moon-orbits">0</div>
+                <div class="stat-desc">Times the Moon has completed a full circle around you.</div>
+            </div>
+
+            <div class="stat-block">
+                <div class="stat-label">Martian Age</div>
+                <div class="stat-value" id="mars-age">0</div>
+                <div class="stat-desc">Your age if you were born on Mars (One year is 687 days).</div>
+            </div>
+
+            <div class="stat-block">
+                <div class="stat-label">Voyager 1 Distance</div>
+                <div class="stat-value" id="voyager-dist">0</div>
+                <div class="stat-desc">Miles the Voyager 1 space probe has drifted into the void since your first breath.</div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Mathematical Constants
+        const EARTH_SPEED_MPH = 67000; // Earth orbits the sun at 67,000 mph
+        const EARTH_SPEED_MPS = EARTH_SPEED_MPH / 3600; // Miles per second
+        
+        const VOYAGER_SPEED_MPH = 38000; // Voyager 1 travels at 38,000 mph
+        const VOYAGER_SPEED_MPS = VOYAGER_SPEED_MPH / 3600; 
+
+        const MOON_ORBIT_DAYS = 27.3;
+        const MARS_YEAR_DAYS = 687;
+
+        let birthDateObj = null;
+
         document.getElementById('start-btn').addEventListener('click', function() {
             const dateInput = document.getElementById('bdate').value;
-            if (!dateInput) return; // Wait for user to pick a date
+            if (!dateInput) return; // Ignore if no date picked
 
-            // Format the date beautifully
-            const dob = new Date(dateInput);
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = dob.toLocaleDateString('en-US', options);
+            birthDateObj = new Date(dateInput);
 
-            // Fade out the intro form
-            const intro = document.getElementById('intro');
+            // Transition UI
+            const intro = document.getElementById('intro-screen');
+            const dashboard = document.getElementById('dashboard');
+
             intro.style.opacity = '0';
-
-            // Wait 2 seconds for fade out, then start the story
+            
             setTimeout(() => {
                 intro.style.display = 'none';
-                startStory(formattedDate);
-            }, 2000);
+                dashboard.style.display = 'block';
+                // Trigger reflow to restart animation
+                void dashboard.offsetWidth; 
+                dashboard.style.opacity = '1';
+                
+                // Start the live calculators
+                startCalculations();
+            }, 1000);
         });
 
-        function startStory(dateStr) {
-            const storyContainer = document.getElementById('story');
-            storyContainer.style.display = 'block';
+        function startCalculations() {
+            // Static calculations (Days alive)
+            const now = new Date();
+            const msAlive = now - birthDateObj;
+            const daysAlive = msAlive / (1000 * 60 * 60 * 24);
 
-            // The emotional narrative
-            const script = [
-                `You were born on ${dateStr}.`,
-                `But your story didn't start there.`,
-                `For you to take your first breath, two people had to cross paths.`,
-                `Four grandparents had to survive the mid-20th century.`,
-                `Eight great-grandparents had to live through a world at war.`,
-                `Go back just ten generations.`,
-                `1,024 people.`,
-                `Go back 400 years, to the early 1600s...`,
-                `65,536 ancestors.`,
-                `Farmers, soldiers, wanderers, lovers.`,
-                `They survived plagues, crossed oceans, and fought through the darkest winters.`,
-                `A fragile, unbroken chain of survival stretching across thousands of years.`,
-                `All of them, funneling their hopes, their struggles, and their bloodlines...`,
-                `Right down to you.`,
-                `You are the surviving dream of a thousand generations.`,
-                `Take a breath.`
-            ];
+            // Calculate static planet stats
+            const moonOrbits = (daysAlive / MOON_ORBIT_DAYS).toFixed(1);
+            const marsAge = (daysAlive / MARS_YEAR_DAYS).toFixed(2);
 
-            let delay = 0;
-            const durationPerLine = 7000; // 7 seconds per sentence
+            document.getElementById('moon-orbits').innerText = moonOrbits;
+            document.getElementById('mars-age').innerText = marsAge + " Years";
 
-            script.forEach((text, index) => {
-                setTimeout(() => {
-                    // Create a new paragraph for each line
-                    const p = document.createElement('p');
-                    p.className = 'story-line';
-                    p.innerText = text;
+            // Live ticking calculations
+            setInterval(updateLiveStats, 100); // Update every 100ms for a cool ticking effect
+        }
 
-                    // If it's the last line, it stays on screen forever. Otherwise, it fades out.
-                    if (index === script.length - 1) {
-                        p.classList.add('animate-final');
-                    } else {
-                        p.classList.add('animate-line');
-                    }
+        function updateLiveStats() {
+            const now = new Date();
+            const secondsAlive = (now - birthDateObj) / 1000;
 
-                    // Clear previous lines to keep the DOM clean
-                    storyContainer.innerHTML = ''; 
-                    storyContainer.appendChild(p);
+            // Earth miles traveled
+            const earthMiles = Math.floor(secondsAlive * EARTH_SPEED_MPS);
+            document.getElementById('miles-traveled').innerText = earthMiles.toLocaleString();
 
-                }, delay);
-
-                delay += durationPerLine;
-            });
+            // Voyager miles traveled since birth
+            const voyagerMiles = Math.floor(secondsAlive * VOYAGER_SPEED_MPS);
+            document.getElementById('voyager-dist').innerText = voyagerMiles.toLocaleString();
         }
     </script>
 </body>
