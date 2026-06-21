@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Relativity of Time</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #e3dccf;
+            --faint-color: #5a5a5a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Cormorant Garamond', serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            /* Subtle film grain effect */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        #container {
+            max-width: 800px;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ----- INPUT PHASE ----- */
+        #intro {
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            color: var(--faint-color);
+        }
+
+        input[type="date"] {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--faint-color);
+            color: var(--text-color);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            outline: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.3;
+            cursor: pointer;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--faint-color);
+            color: var(--text-color);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            padding: 0.8rem 2rem;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        /* ----- CINEMATIC TEXT PHASE ----- */
+        #story {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            display: none;
+        }
+
+        .story-line {
+            font-size: 2.5rem;
+            line-height: 1.4;
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Fade in, linger, fade out */
+        @keyframes breatheInOut {
+            0% { opacity: 0; transform: translate(-50%, -45%); filter: blur(3px); }
+            15% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
+            85% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
+            100% { opacity: 0; transform: translate(-50%, -55%); filter: blur(3px); }
+        }
+
+        /* Final thought stays on screen */
+        @keyframes breatheInStay {
+            0% { opacity: 0; transform: translate(-50%, -45%); filter: blur(3px); }
+            100% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
+        }
+
+        .animate-line {
+            animation: breatheInOut 8s forwards;
+        }
+
+        .animate-final {
+            animation: breatheInStay 5s forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <div id="intro">
+            <h1>Tell me when you were born.</h1>
+            <input type="date" id="bdate" required>
+            <button id="start-btn">Reflect</button>
+        </div>
+
+        <div id="story"></div>
+    </div>
+
+    <script>
+        // Database of historical ages to compare against
+        const milestones = [
+            { age: 21, text: "You are older than Steve Jobs was when he founded Apple in a garage." },
+            { age: 25, text: "You have outlived John Keats, who wrote some of history's greatest poetry before dying at 25." },
+            { age: 26, text: "You are older than Albert Einstein was when he published the theory of relativity." },
+            { age: 28, text: "You have outlived the '27 Club'. Jimi Hendrix, Kurt Cobain, and Amy Winehouse never saw the age you are right now." },
+            { age: 33, text: "You have now been alive longer than Alexander the Great, who forged an empire and died at 32." },
+            { age: 34, text: "You are older than Keanu Reeves was when he filmed The Matrix." },
+            { age: 35, text: "You are older than Brad Pitt was when he starred in Fight Club." },
+            { age: 36, text: "You have outlived Mozart, who composed over 600 works before passing away at 35." },
+            { age: 37, text: "You have outlived Marilyn Monroe, who left the world at 36." },
+            { age: 40, text: "You have outlived Martin Luther King Jr., who was assassinated at 39." },
+            { age: 44, text: "You are older than F. Scott Fitzgerald was when he died, believing The Great Gatsby was a failure." }
+        ];
+
+        // Database of historical events for the "Time Mirror" calculation
+        const historicalEras = [
+            { year: 2007, name: "the release of the very first iPhone" },
+            { year: 2001, name: "the release of the first Shrek movie" },
+            { year: 1999, name: "the release of The Matrix" },
+            { year: 1989, name: "the fall of the Berlin Wall" },
+            { year: 1977, name: "the release of the original Star Wars" },
+            { year: 1969, name: "the Apollo 11 Moon Landing" },
+            { year: 1945, name: "the end of World War II" },
+            { year: 1912, name: "the sinking of the Titanic" }
+        ];
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+            const dateInput = document.getElementById('bdate').value;
+            if (!dateInput) return;
+
+            const dob = new Date(dateInput);
+            const now = new Date();
+            
+            // Calculate exact age in years
+            const ageInMilliseconds = now - dob;
+            const ageInYears = ageInMilliseconds / (1000 * 60 * 60 * 24 * 365.25);
+            const birthYear = dob.getFullYear();
+
+            // Calculate the "Mirror Year" (If they are 30, what year was 30 years before they were born?)
+            const mirrorYear = birthYear - Math.floor(ageInYears);
+
+            // Find an event that happened near or after the Mirror Year
+            let mirrorEvent = "the beginning of a different era";
+            for (let i = 0; i < historicalEras.length; i++) {
+                if (mirrorYear <= historicalEras[i].year) {
+                    mirrorEvent = historicalEras[i].name;
+                }
+            }
+
+            // Find applicable milestones
+            const applicableMilestones = milestones.filter(m => ageInYears > m.age);
+            let selectedMilestone = "You are carrying more history in your bones than you realize.";
+            if (applicableMilestones.length > 0) {
+                // Pick the most recent milestone they passed to make it hit hardest
+                selectedMilestone = applicableMilestones[applicableMilestones.length - 1].text;
+            }
+
+            // Build the cinematic script
+            const script = [
+                `You are ${Math.floor(ageInYears)} years old.`,
+                `It feels like time is moving at a normal pace.`,
+                `But your perspective is shifting.`,
+                selectedMilestone,
+                `And time is stretching behind you faster than you think.`,
+                `The day you were born is exactly halfway between today...`,
+                `...and the year ${mirrorYear}.`,
+                `Which means your birth is now closer to ${mirrorEvent}...`,
+                `...than it is to this exact moment.`,
+                `You are older than you've ever been.`,
+                `And younger than you'll ever be again.`,
+                `Breathe it in.`
+            ];
+
+            // Transition UI
+            const intro = document.getElementById('intro');
+            intro.style.opacity = '0';
+
+            setTimeout(() => {
+                intro.style.display = 'none';
+                playStory(script);
+            }, 1500);
+        });
+
+        function playStory(script) {
+            const storyContainer = document.getElementById('story');
+            storyContainer.style.display = 'block';
+
+            let delay = 0;
+            const durationPerLine = 8000; // 8 seconds per sentence
+
+            script.forEach((text, index) => {
+                setTimeout(() => {
+                    const p = document.createElement('p');
+                    p.className = 'story-line';
+                    p.innerText = text;
+
+                    if (index === script.length - 1) {
+                        p.classList.add('animate-final');
+                    } else {
+                        p.classList.add('animate-line');
+                    }
+
+                    storyContainer.innerHTML = ''; 
+                    storyContainer.appendChild(p);
+
+                }, delay);
+
+                delay += durationPerLine;
+            });
+        }
+    </script>
+</body>
+</html>
