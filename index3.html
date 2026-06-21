@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Relativity of Time</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
+    <title>The Vessel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --text-color: #e3dccf;
-            --faint-color: #5a5a5a;
+            --bg-color: #030303;
+            --text-color: #d1cbbd;
+            --accent-color: #c94c4c; /* A deep, faded blood red */
+            --faint-color: #3a3a3a;
+            --glass-bg: rgba(20, 20, 20, 0.6);
         }
 
         body {
@@ -17,42 +19,41 @@
             color: var(--text-color);
             font-family: 'Cormorant Garamond', serif;
             margin: 0;
+            overflow-x: hidden;
+            /* Microscopic cellular texture */
+            background-image: radial-gradient(circle at 50% 50%, rgba(200, 76, 76, 0.03) 0%, transparent 60%),
+                              url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            background-attachment: fixed;
+        }
+
+        /* ----- INPUT SCREEN ----- */
+        #intro-screen {
+            height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-align: center;
-            overflow: hidden;
-            /* Subtle film grain effect */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-        }
-
-        #container {
-            max-width: 800px;
-            padding: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ----- INPUT PHASE ----- */
-        #intro {
-            transition: opacity 1.5s ease-in-out;
+            transition: opacity 2s ease-in-out;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            background: var(--bg-color);
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 300;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             margin-bottom: 2rem;
-            color: var(--faint-color);
+            color: var(--text-color);
         }
 
         input[type="date"] {
             background: transparent;
             border: none;
-            border-bottom: 1px solid var(--faint-color);
-            color: var(--text-color);
-            font-family: 'Cormorant Garamond', serif;
+            border-bottom: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-family: 'Space Mono', monospace;
             font-size: 1.5rem;
             padding: 0.5rem;
             margin-bottom: 2rem;
@@ -62,8 +63,7 @@
         }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            opacity: 0.3;
+            filter: invert(30%) sepia(80%) saturate(1000%) hue-rotate(330deg);
             cursor: pointer;
         }
 
@@ -71,187 +71,359 @@
             background: transparent;
             border: 1px solid var(--faint-color);
             color: var(--text-color);
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            padding: 0.8rem 2rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            padding: 1rem 2.5rem;
             cursor: pointer;
             transition: all 0.5s ease;
-            display: block;
-            margin: 0 auto;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
         button:hover {
-            background: var(--text-color);
-            color: var(--bg-color);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(201, 76, 76, 0.2);
         }
 
-        /* ----- CINEMATIC TEXT PHASE ----- */
-        #story {
-            position: absolute;
+        /* ----- CINEMATIC TEXT ----- */
+        #cinematic-text {
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100%;
+            width: 80%;
+            text-align: center;
+            font-size: 2.2rem;
+            line-height: 1.5;
             display: none;
+            z-index: 90;
         }
 
-        .story-line {
-            font-size: 2.5rem;
-            line-height: 1.4;
+        .cine-line {
             opacity: 0;
             position: absolute;
             width: 100%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            animation: breatheInOut 7s forwards;
         }
 
-        /* Fade in, linger, fade out */
         @keyframes breatheInOut {
-            0% { opacity: 0; transform: translate(-50%, -45%); filter: blur(3px); }
-            15% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
-            85% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
-            100% { opacity: 0; transform: translate(-50%, -55%); filter: blur(3px); }
+            0% { opacity: 0; filter: blur(4px); }
+            20% { opacity: 1; filter: blur(0px); }
+            80% { opacity: 1; filter: blur(0px); }
+            100% { opacity: 0; filter: blur(4px); }
         }
 
-        /* Final thought stays on screen */
-        @keyframes breatheInStay {
-            0% { opacity: 0; transform: translate(-50%, -45%); filter: blur(3px); }
-            100% { opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); }
+        /* ----- THE DASHBOARD ----- */
+        #dashboard {
+            display: none;
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 3s ease-in;
         }
 
-        .animate-line {
-            animation: breatheInOut 8s forwards;
+        .dash-header {
+            text-align: center;
+            margin-bottom: 4rem;
         }
 
-        .animate-final {
-            animation: breatheInStay 5s forwards;
+        .dash-header h2 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .dash-header p {
+            color: var(--accent-color);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .category {
+            margin-bottom: 4rem;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            border-bottom: 1px solid var(--faint-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--faint-color);
+            padding: 1.5rem;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stat-name {
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            font-variant-numeric: tabular-nums; /* Prevents numbers from jiggling */
+            font-weight: bold;
+        }
+
+        .stat-unit {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: #777;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
 
-    <div id="container">
-        <div id="intro">
-            <h1>Tell me when you were born.</h1>
-            <input type="date" id="bdate" required>
-            <button id="start-btn">Reflect</button>
-        </div>
+    <div id="intro-screen">
+        <h1>When did your vessel awaken?</h1>
+        <input type="date" id="bdate" required>
+        <button id="start-btn">Diagnose</button>
+    </div>
 
-        <div id="story"></div>
+    <div id="cinematic-text"></div>
+
+    <div id="dashboard">
+        <div class="dash-header">
+            <h2>THE ARCHIVE OF THE VESSEL</h2>
+            <p>Live Biological Telemetry</p>
+        </div>
+        <div id="stats-container"></div>
     </div>
 
     <script>
-        // Database of historical ages to compare against
-        const milestones = [
-            { age: 21, text: "You are older than Steve Jobs was when he founded Apple in a garage." },
-            { age: 25, text: "You have outlived John Keats, who wrote some of history's greatest poetry before dying at 25." },
-            { age: 26, text: "You are older than Albert Einstein was when he published the theory of relativity." },
-            { age: 28, text: "You have outlived the '27 Club'. Jimi Hendrix, Kurt Cobain, and Amy Winehouse never saw the age you are right now." },
-            { age: 33, text: "You have now been alive longer than Alexander the Great, who forged an empire and died at 32." },
-            { age: 34, text: "You are older than Keanu Reeves was when he filmed The Matrix." },
-            { age: 35, text: "You are older than Brad Pitt was when he starred in Fight Club." },
-            { age: 36, text: "You have outlived Mozart, who composed over 600 works before passing away at 35." },
-            { age: 37, text: "You have outlived Marilyn Monroe, who left the world at 36." },
-            { age: 40, text: "You have outlived Martin Luther King Jr., who was assassinated at 39." },
-            { age: 44, text: "You are older than F. Scott Fitzgerald was when he died, believing The Great Gatsby was a failure." }
+        // --- DATA ARCHITECTURE (50+ Parameters) ---
+        // Rates are calculated PER SECOND based on human averages.
+        const bodyStats = [
+            // THE ENGINE (Cardiovascular)
+            { cat: "The Engine", name: "Heartbeats", rate: 1.166, unit: "Beats", dec: 0 }, // ~70 bpm
+            { cat: "The Engine", name: "Blood Pumped", rate: 0.023, unit: "Gallons", dec: 3 }, // 2000 gal/day
+            { cat: "The Engine", name: "Red Blood Cells Forged", rate: 2400000, unit: "Cells", dec: 0 }, 
+            { cat: "The Engine", name: "Red Blood Cells Destroyed", rate: 2400000, unit: "Cells", dec: 0 },
+            { cat: "The Engine", name: "Miles of Blood Traveled", rate: 0.138, unit: "Miles", dec: 4 }, // 12000 miles/day
+            { cat: "The Engine", name: "Pulses in your Wrists", rate: 1.166, unit: "Pulses", dec: 0 },
+            { cat: "The Engine", name: "Heart Pauses (Between Beats)", rate: 1.166, unit: "Moments of Rest", dec: 0 },
+
+            // THE BREATH (Respiratory)
+            { cat: "The Breath", name: "Breaths Taken", rate: 0.266, unit: "Inhalations", dec: 0 }, // 16 breaths/min
+            { cat: "The Breath", name: "Liters of Air Absorbed", rate: 0.133, unit: "Liters", dec: 3 }, // 8L/min
+            { cat: "The Breath", name: "Times Lungs Expanded", rate: 0.266, unit: "Expansions", dec: 0 },
+            { cat: "The Breath", name: "Carbon Dioxide Exhaled", rate: 0.011, unit: "Grams", dec: 4 }, // ~1kg/day
+            { cat: "The Breath", name: "Yawns", rate: 0.00008, unit: "Yawns", dec: 2 }, // ~7/day
+            { cat: "The Breath", name: "Sneezes", rate: 0.000013, unit: "Sneezes", dec: 2 }, // ~400/year
+
+            // THE ARCHITECTURE (Cellular & Skeletal)
+            { cat: "The Architecture", name: "Skin Cells Shed", rate: 500, unit: "Cells", dec: 0 }, // 30k/min
+            { cat: "The Architecture", name: "Pounds of Skin Cast Off", rate: 0.000000285, unit: "Pounds", dec: 6 }, // 9lbs/year
+            { cat: "The Architecture", name: "Complete Epidermal Renewals", rate: 0.00000041, unit: "New Skins", dec: 4 }, // 1 every 28 days
+            { cat: "The Architecture", name: "Hair Grown", rate: 0.00000019, unit: "Inches", dec: 6 }, // 0.5 in/month
+            { cat: "The Architecture", name: "Fingernails Grown", rate: 0.0000013, unit: "Millimeters", dec: 6 }, // 3.47mm/month
+            { cat: "The Architecture", name: "Bone Cells Replaced", rate: 0.000003, unit: "% of Skeleton", dec: 6 }, // 10%/year
+            { cat: "The Architecture", name: "Complete Skeletal Renewals", rate: 0.000000003, unit: "New Skeletons", dec: 4 }, // 1 every 10 yrs
+            { cat: "The Architecture", name: "Stomach Linings Built", rate: 0.0000028, unit: "Linings", dec: 4 }, // 1 every 4 days
+            { cat: "The Architecture", name: "Cells Sacrificed to Protect You (Apoptosis)", rate: 578703, unit: "Cells", dec: 0 }, // 50 billion/day
+
+            // THE OBSERVER (Neurological & Senses)
+            { cat: "The Observer", name: "Times You Blinked", rate: 0.25, unit: "Blinks", dec: 0 }, // 15/min
+            { cat: "The Observer", name: "Hours Spent Asleep", rate: 0.000092, unit: "Hours", dec: 4 }, // 1/3 of life
+            { cat: "The Observer", name: "Dreams Lived", rate: 0.000057, unit: "Dreams", dec: 2 }, // ~5/night
+            { cat: "The Observer", name: "Thoughts Processed", rate: 0.071, unit: "Thoughts", dec: 0 }, // ~6200/day
+            { cat: "The Observer", name: "Words Spoken", rate: 0.185, unit: "Words", dec: 0 }, // 16k/day
+            { cat: "The Observer", name: "Tears Produced", rate: 0.001, unit: "Milliliters", dec: 3 }, // ~30 gallons/year
+            { cat: "The Observer", name: "Hours with Eyes Closed", rate: 0.0001, unit: "Hours", dec: 4 },
+            { cat: "The Observer", name: "Times Pupils Adjusted to Light", rate: 0.1, unit: "Adjustments", dec: 0 },
+            { cat: "The Observer", name: "Synapses Fired", rate: 1000000000, unit: "Signals", dec: 0 }, 
+            { cat: "The Observer", name: "Time Spent Laughing", rate: 0.000005, unit: "Hours", dec: 4 },
+
+            // THE KINETIC (Movement & Intake)
+            { cat: "The Kinetic", name: "Steps Taken", rate: 0.057, unit: "Steps", dec: 0 }, // 5000/day
+            { cat: "The Kinetic", name: "Miles Walked", rate: 0.000028, unit: "Miles", dec: 4 }, // 2.5/day
+            { cat: "The Kinetic", name: "Calories Burned", rate: 0.023, unit: "Calories", dec: 2 }, // 2000/day
+            { cat: "The Kinetic", name: "Pounds of Food Digested", rate: 0.000046, unit: "Pounds", dec: 4 }, // 4lbs/day
+            { cat: "The Kinetic", name: "Liters of Water Absorbed", rate: 0.000023, unit: "Liters", dec: 4 }, // 2L/day
+            { cat: "The Kinetic", name: "Liters of Sweat Cast", rate: 0.000011, unit: "Liters", dec: 4 }, // 1L/day
+            { cat: "The Kinetic", name: "Gallons of Saliva Produced", rate: 0.000003, unit: "Gallons", dec: 6 }, // 1L/day
+            { cat: "The Kinetic", name: "Number of Swallows", rate: 0.0069, unit: "Swallows", dec: 0 }, // 600/day
+            { cat: "The Kinetic", name: "Heat Generated", rate: 100, unit: "Joules", dec: 0 }, // Human body emits ~100 watts (J/s)
+
+            // THE CONSTANTS (Time & Earth)
+            { cat: "The Constants", name: "Days the Sun Has Risen for You", rate: 0.0000115, unit: "Sunrises", dec: 2 },
+            { cat: "The Constants", name: "Moon Phases Witnessed", rate: 0.00000039, unit: "Moons", dec: 3 },
+            { cat: "The Constants", name: "Distance Rotated on Earth", rate: 0.288, unit: "Miles", dec: 2 }, // ~1000 mph at equator
+            { cat: "The Constants", name: "Infections Defeated in Secret", rate: 0.001, unit: "Mutations", dec: 0 },
+            { cat: "The Constants", name: "Unbroken Thread of Consciousness", rate: 0, unit: "Soul", dec: 0, staticVal: 1 }
         ];
 
-        // Database of historical events for the "Time Mirror" calculation
-        const historicalEras = [
-            { year: 2007, name: "the release of the very first iPhone" },
-            { year: 2001, name: "the release of the first Shrek movie" },
-            { year: 1999, name: "the release of The Matrix" },
-            { year: 1989, name: "the fall of the Berlin Wall" },
-            { year: 1977, name: "the release of the original Star Wars" },
-            { year: 1969, name: "the Apollo 11 Moon Landing" },
-            { year: 1945, name: "the end of World War II" },
-            { year: 1912, name: "the sinking of the Titanic" }
-        ];
+        let birthDateObj = null;
 
         document.getElementById('start-btn').addEventListener('click', function() {
             const dateInput = document.getElementById('bdate').value;
             if (!dateInput) return;
 
-            const dob = new Date(dateInput);
-            const now = new Date();
-            
-            // Calculate exact age in years
-            const ageInMilliseconds = now - dob;
-            const ageInYears = ageInMilliseconds / (1000 * 60 * 60 * 24 * 365.25);
-            const birthYear = dob.getFullYear();
+            birthDateObj = new Date(dateInput);
 
-            // Calculate the "Mirror Year" (If they are 30, what year was 30 years before they were born?)
-            const mirrorYear = birthYear - Math.floor(ageInYears);
-
-            // Find an event that happened near or after the Mirror Year
-            let mirrorEvent = "the beginning of a different era";
-            for (let i = 0; i < historicalEras.length; i++) {
-                if (mirrorYear <= historicalEras[i].year) {
-                    mirrorEvent = historicalEras[i].name;
-                }
-            }
-
-            // Find applicable milestones
-            const applicableMilestones = milestones.filter(m => ageInYears > m.age);
-            let selectedMilestone = "You are carrying more history in your bones than you realize.";
-            if (applicableMilestones.length > 0) {
-                // Pick the most recent milestone they passed to make it hit hardest
-                selectedMilestone = applicableMilestones[applicableMilestones.length - 1].text;
-            }
-
-            // Build the cinematic script
-            const script = [
-                `You are ${Math.floor(ageInYears)} years old.`,
-                `It feels like time is moving at a normal pace.`,
-                `But your perspective is shifting.`,
-                selectedMilestone,
-                `And time is stretching behind you faster than you think.`,
-                `The day you were born is exactly halfway between today...`,
-                `...and the year ${mirrorYear}.`,
-                `Which means your birth is now closer to ${mirrorEvent}...`,
-                `...than it is to this exact moment.`,
-                `You are older than you've ever been.`,
-                `And younger than you'll ever be again.`,
-                `Breathe it in.`
-            ];
-
-            // Transition UI
-            const intro = document.getElementById('intro');
+            // Phase 1: Fade out Intro
+            const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
-
+            
             setTimeout(() => {
                 intro.style.display = 'none';
-                playStory(script);
-            }, 1500);
+                playCinematicIntro();
+            }, 2000);
         });
 
-        function playStory(script) {
-            const storyContainer = document.getElementById('story');
-            storyContainer.style.display = 'block';
+        function playCinematicIntro() {
+            const cineBox = document.getElementById('cinematic-text');
+            cineBox.style.display = 'block';
+
+            const script = [
+                "You look in the mirror and judge your reflection.",
+                "You worry about time, about aging, about flaws.",
+                "But beneath your skin, in the absolute dark...",
+                "A miracle is relentlessly laboring.",
+                "Your vessel has never taken a single day off.",
+                "It fought off infections you never knew you had.",
+                "It kept breathing when you were asleep.",
+                "It kept beating when your heart was broken.",
+                "It sacrifices billions of its own cells daily, just to keep you here.",
+                "Witness the absolute devotion of your vessel."
+            ];
 
             let delay = 0;
-            const durationPerLine = 8000; // 8 seconds per sentence
+            const duration = 6500;
 
             script.forEach((text, index) => {
                 setTimeout(() => {
-                    const p = document.createElement('p');
-                    p.className = 'story-line';
+                    const p = document.createElement('div');
+                    p.className = 'cine-line';
                     p.innerText = text;
+                    cineBox.innerHTML = '';
+                    cineBox.appendChild(p);
 
+                    // If it's the last line, trigger the dashboard next
                     if (index === script.length - 1) {
-                        p.classList.add('animate-final');
-                    } else {
-                        p.classList.add('animate-line');
+                        setTimeout(() => {
+                            cineBox.style.display = 'none';
+                            initDashboard();
+                        }, duration);
                     }
-
-                    storyContainer.innerHTML = ''; 
-                    storyContainer.appendChild(p);
-
                 }, delay);
-
-                delay += durationPerLine;
+                delay += duration;
             });
+        }
+
+        function initDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            const container = document.getElementById('stats-container');
+            
+            // Group stats by Category
+            const categories = [...new Set(bodyStats.map(s => s.cat))];
+
+            categories.forEach(catName => {
+                const catDiv = document.createElement('div');
+                catDiv.className = 'category';
+                
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.innerText = catName;
+                catDiv.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+
+                const catStats = bodyStats.filter(s => s.cat === catName);
+                catStats.forEach((stat, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'stat-card';
+                    
+                    const name = document.createElement('div');
+                    name.className = 'stat-name';
+                    name.innerText = stat.name;
+
+                    const val = document.createElement('div');
+                    val.className = 'stat-value';
+                    val.id = `stat-${catName.replace(/\s+/g, '')}-${index}`;
+                    val.innerText = "0";
+
+                    const unit = document.createElement('div');
+                    unit.className = 'stat-unit';
+                    unit.innerText = stat.unit;
+
+                    card.appendChild(name);
+                    card.appendChild(val);
+                    card.appendChild(unit);
+                    grid.appendChild(card);
+
+                    // Save the DOM element ID back to the object for fast updates
+                    stat.domId = val.id;
+                });
+
+                catDiv.appendChild(grid);
+                container.appendChild(catDiv);
+            });
+
+            dashboard.style.display = 'block';
+            
+            // Allow DOM to render before fading in
+            requestAnimationFrame(() => {
+                dashboard.style.opacity = '1';
+                startEngine();
+            });
+        }
+
+        // --- THE TICKING ENGINE ---
+        function startEngine() {
+            function update() {
+                const now = new Date();
+                const secondsAlive = (now - birthDateObj) / 1000;
+
+                bodyStats.forEach(stat => {
+                    const el = document.getElementById(stat.domId);
+                    if (el) {
+                        if (stat.staticVal !== undefined) {
+                            el.innerText = stat.staticVal;
+                        } else {
+                            const currentVal = secondsAlive * stat.rate;
+                            // Format number with commas and correct decimals
+                            el.innerText = currentVal.toLocaleString('en-US', {
+                                minimumFractionDigits: stat.dec,
+                                maximumFractionDigits: stat.dec
+                            });
+                        }
+                    }
+                });
+
+                requestAnimationFrame(update);
+            }
+            
+            // Start the infinite loop
+            requestAnimationFrame(update);
         }
     </script>
 </body>
